@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+kill -INT 1337
+
+ruby server.rb
