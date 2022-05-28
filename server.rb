@@ -8,6 +8,16 @@ require 'erb'
 
 server = TCPServer.new(1337)
 
+routes = {
+  '/' => 'index'
+}
+
+def template(file)
+  file = File.read("#{file}.html.erb")
+  erb = ERB.new file
+  erb.result(binding)  
+end
+
 loop do
   client = server.accept
 
@@ -17,15 +27,11 @@ loop do
   response_status_code="200 OK"
   content_type ="text/html"
   response_message = ""
-  
-  puts "request for #{target}"
-  
+
   case [method_token, target]
   when ['GET', '/']
-    @foo = 'bar'
-    file = File.read('index.html.erb')
-    template = ERB.new file
-    response_message << template.result(binding)
+    file = routes[target]
+    response_message << template(file)
   when ['GET', '/birthdays']
     response_message << "/birthdays"
   when ['POST', '/birthdays']
