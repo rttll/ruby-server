@@ -7,7 +7,8 @@ require 'socket'
 require 'erb'
 require 'yaml/store'
 
-server = TCPServer.new(1337)
+port = $PORT || 1337
+server = TCPServer.new(port)
 
 store = YAML::Store.new("db/db.yml")
 store.transaction do
