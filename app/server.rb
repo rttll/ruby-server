@@ -9,7 +9,7 @@ require 'yaml/store'
 
 server = TCPServer.new(1337)
 
-store = YAML::Store.new("db.yml")
+store = YAML::Store.new("db/db.yml")
 store.transaction do
   store[:birthdays] = [] if store[:birthdays].nil?
 end
@@ -20,7 +20,7 @@ routes = {
 
 @birthdays = []
 def template(file)
-  file = File.read("#{file}.html.erb")
+  file = File.read("#{Dir.pwd}/app/views/#{file}.html.erb")
   erb = ERB.new file
   erb.result(binding)  
 end
