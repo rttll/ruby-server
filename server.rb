@@ -18,6 +18,8 @@ def template(file)
   erb.result(binding)  
 end
 
+@birthdays = []
+
 loop do
   client = server.accept
 
@@ -28,13 +30,27 @@ loop do
   content_type ="text/html"
   response_message = ""
 
+  puts "incoming: #{method_token} #{target}"
+
   case [method_token, target]
   when ['GET', '/']
     file = routes[target]
     response_message << template(file)
-  when ['GET', '/birthdays']
-    response_message << "/birthdays"
   when ['POST', '/birthdays']
+    response_status_code = "303 See Other"
+    
+    all_headers = {}
+    while true
+      line = client.readline 
+      break if line == "\r\n"
+      header_name, value = line.split(": ")
+      all_headers[header_name] = value
+    end
+    body = client.read(all_headers['Content-Length'].to_i)
+    require 'uri'
+    new_birthday = URI.decode_www_form(body).to_h
+    @birthdays << new_birthday.transform_keys(&:to_sym)
+
   else
     content_type ="text/plain"
     response_message = "✅ Received a #{method_token} request to #{target} with #{version_number}"
@@ -43,7 +59,7 @@ loop do
   http_response = <<~MSG
     #{version_number} #{response_status_code}
     Content-Type: #{content_type}; charset=#{response_message.encoding.name}
-    Location: /birthdays
+    Location: /
 
     #{response_message}
   MSG
