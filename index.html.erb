@@ -7,7 +7,14 @@
     <title>Document</title>
   </head>
   <body>
-    hello
-    <%= @foo %>
+    <% @birthdays.each do |bday| %>
+      <%= bday.inspect %>
+      <hr>
+    <% end %>
+    <form action="/birthdays" method="post" enctype="application/x-www-form-urlencoded">
+        <p><label>Name <input type="text" name="name"></label></p>
+        <p><label>Birthday <input type="date" name="date"></label></p>
+        <p><button>Submit birthday</button></p>
+      </form>
   </body>
 </html>
