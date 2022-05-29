@@ -5,20 +5,25 @@
 
 require 'socket'
 require 'erb'
+require 'yaml/store'
 
 server = TCPServer.new(1337)
+
+store = YAML::Store.new("db.yml")
+store.transaction do
+  store[:birthdays] = [] if store[:birthdays].nil?
+end
 
 routes = {
   '/' => 'index'
 }
 
+@birthdays = []
 def template(file)
   file = File.read("#{file}.html.erb")
   erb = ERB.new file
   erb.result(binding)  
 end
-
-@birthdays = []
 
 loop do
   client = server.accept
@@ -34,8 +39,14 @@ loop do
 
   case [method_token, target]
   when ['GET', '/']
+    
+    store.transaction do
+      @birthdays = store[:birthdays]
+    end
+    
     file = routes[target]
     response_message << template(file)
+
   when ['POST', '/birthdays']
     response_status_code = "303 See Other"
     
@@ -49,7 +60,9 @@ loop do
     body = client.read(all_headers['Content-Length'].to_i)
     require 'uri'
     new_birthday = URI.decode_www_form(body).to_h
-    @birthdays << new_birthday.transform_keys(&:to_sym)
+    store.transaction do
+      store[:birthdays] << new_birthday.transform_keys(&:to_sym)
+    end
 
   else
     content_type ="text/plain"
