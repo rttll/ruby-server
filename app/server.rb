@@ -10,6 +10,8 @@ require 'yaml/store'
 port = $PORT || 1337
 server = TCPServer.new(port)
 
+Dir.mkdir('db') unless Dir.exist? 'db'
+
 store = YAML::Store.new("db/db.yml")
 store.transaction do
   store[:birthdays] = [] if store[:birthdays].nil?
