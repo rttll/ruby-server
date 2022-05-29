@@ -24,10 +24,9 @@ app = -> environment {
   end
 
   request = Rack::Request.new(environment)
+  response = Rack::Response.new
   
-  status = 200
-  content_type = 'text/html'
-  response_message = '' 
+  response.content_type = "text/html; charset=UTF-8"
 
   if request.get? && request.path == '/'  
     store.transaction do
@@ -35,26 +34,20 @@ app = -> environment {
     end
     
     file = routes[request.path]
-    response_message << template(file)
+    response.write template(file)
 
   elsif request.post? && request.path == '/birthdays'
-    status = 303
-    new_birthday = request.params
+    new_birthday = request.params.transform_keys(&:to_sym)
     store.transaction do
       store[:birthdays] << new_birthday.transform_keys(&:to_sym)
     end
-
+    response.redirect('/', 303)
   else
-    content_type = 'text/plain'
-    response_message = "✅ Received a #{request.request_method} request to #{request.path}"
+    response.content_type = "text/plain; charset=UTF-8"
+    response.write "✅ Received a #{request.request_method} request to #{request.path}"
   end
 
-  headers = { 
-    'Content-Type' => "#{content_type}; charset=#{response_message.encoding.name}", 
-    "Location" => "/" 
-  }
-  body = [response_message]
-  [status, headers, body]
+  response.finish
 }
 
 Rack::Handler::Puma.run(app, :Port => 1337, :Verbose => true) 
