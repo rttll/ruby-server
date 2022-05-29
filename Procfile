@@ -1,1 +1,0 @@
-web: ruby app/server.rb ${PORT:-1337}
