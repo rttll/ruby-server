@@ -7,7 +7,7 @@ require 'socket'
 require 'erb'
 require 'yaml/store'
 
-port = $PORT || 1337
+port = ENV['PORT'] || 1337
 server = TCPServer.new(port)
 
 Dir.mkdir('db') unless Dir.exist? 'db'
