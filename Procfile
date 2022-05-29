@@ -1,1 +1,1 @@
-web: ruby app/server.rb
+web: ruby app/server.rb ${PORT:-1337}

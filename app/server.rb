@@ -7,7 +7,7 @@ require 'socket'
 require 'erb'
 require 'yaml/store'
 
-port = ENV['PORT'] || 1337
+port = ARGV[0] || 1337
 server = TCPServer.new(port)
 
 Dir.mkdir('db') unless Dir.exist? 'db'
@@ -38,11 +38,11 @@ loop do
   content_type ="text/html"
   response_message = ""
 
-  puts "incoming: #{method_token} #{target}"
+  puts "incoming: #{method_token} #{target} on port #{port}"
 
   case [method_token, target]
   when ['GET', '/']
-    
+
     store.transaction do
       @birthdays = store[:birthdays]
     end
