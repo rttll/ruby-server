@@ -6,6 +6,8 @@ git_source(:github) {|repo_name| "https://github.com/#{repo_name}" }
 
 ruby '3.0.4'
 
+gem "sqlite3"
+
 group :development do 
   gem 'guard'
   gem 'guard-shell'
