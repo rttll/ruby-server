@@ -1,15 +1,11 @@
 require 'rack'
 require 'rack/handler/puma'
 require 'erb'
-require 'yaml/store'
+require 'sqlite3'
 
 app = -> environment {
 
-  Dir.mkdir('db') unless Dir.exist? 'db'
-  store = YAML::Store.new("db/db.yml")
-  store.transaction do
-    store[:birthdays] = [] if store[:birthdays].nil?
-  end
+  database = SQLite3::Database.new("db.sqlite3", results_as_hash: true)
   
   routes = {
     '/' => 'index'
@@ -29,18 +25,15 @@ app = -> environment {
   response.content_type = "text/html; charset=UTF-8"
 
   if request.get? && request.path == '/'  
-    store.transaction do
-      @birthdays = store[:birthdays]
-    end
+    @birthdays = database.execute("SELECT * FROM birthdays")
     
     file = routes[request.path]
     response.write template(file)
 
   elsif request.post? && request.path == '/birthdays'
     new_birthday = request.params.transform_keys(&:to_sym)
-    store.transaction do
-      store[:birthdays] << new_birthday.transform_keys(&:to_sym)
-    end
+    query = "INSERT INTO birthdays (name, date) VALUES (?, ?)"
+    database.execute(query, [new_birthday[:name], new_birthday[:date]])
     response.redirect('/', 303)
   else
     response.content_type = "text/plain; charset=UTF-8"

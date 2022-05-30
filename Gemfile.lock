@@ -33,6 +33,7 @@ GEM
     rb-inotify (0.10.1)
       ffi (~> 1.0)
     shellany (0.0.1)
+    sqlite3 (1.4.2)
     thor (1.2.1)
 
 PLATFORMS
@@ -41,6 +42,10 @@ PLATFORMS
 DEPENDENCIES
   guard
   guard-shell
+  sqlite3
+
+RUBY VERSION
+   ruby 3.0.4p208
 
 BUNDLED WITH
-   2.1.4
+   2.2.33
